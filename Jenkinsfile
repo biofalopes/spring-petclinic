@@ -17,6 +17,7 @@ pipeline {
             }
             post {
                 always {
+                    slackSend color: '#BADA55', message: 'Hello, World!'
                     junit 'target/surefire-reports/*.xml' 
                 }
             }
