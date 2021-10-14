@@ -9,7 +9,7 @@ pipeline {
         stage('Slack it'){
             steps {
                 slackSend channel: '#jenkins', 
-                          message: 'Build: ${env.BUILD_NUMBER}'
+                          message: "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
             }
         }
         stage('Build') {
@@ -23,7 +23,6 @@ pipeline {
             }
             post {
                 always {
-                    slackSend color: '#BADA55', message: 'Hello, World!'
                     junit 'target/surefire-reports/*.xml' 
                 }
             }
