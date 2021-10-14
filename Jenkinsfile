@@ -6,6 +6,13 @@ pipeline {
         }
     }
     stages {
+        stage('Slack it'){
+            steps {
+                slackSend channel: '#jenkins', 
+                          message: 'Build: ${env.BUILD_NUMBER}'
+            }
+        }
+    }
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
