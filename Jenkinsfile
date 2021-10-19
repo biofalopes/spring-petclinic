@@ -6,19 +6,23 @@ pipeline {
         }
     }
     stages {
-        stage('Slack it'){
+        stage('Init'){
             steps {
-                slackSend channel: '#jenkins', 
-                          message: "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Starting"
+                sh 'java --version'
+                sh 'git --version'
+                sh 'mvn --version'
             }
         }
         stage('Build') {
             steps {
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building"
                 sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('Test') { 
             steps {
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Running Tests"
                 sh 'mvn test' 
             }
             post {
@@ -27,5 +31,9 @@ pipeline {
                 }
             }
         }
+        stage('Deploy') { 
+            // Create Docker Image
+        }
+
     }
 }
