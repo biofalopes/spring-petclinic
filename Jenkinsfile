@@ -33,9 +33,9 @@ pipeline {
         }
         stage('Deploy') { 
             steps {
-            // Create Docker Image
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
+                // Create Docker Image
             }
         }
-
     }
 }
