@@ -32,7 +32,9 @@ pipeline {
             }
         }
         stage('Deploy') { 
+            steps {
             // Create Docker Image
+            }
         }
 
     }
