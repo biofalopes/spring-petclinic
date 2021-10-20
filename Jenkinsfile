@@ -24,7 +24,7 @@ pipeline {
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building"
                 sh 'mvn -B -DskipTests clean package'
-                stash includes: 'target/*.jar', name: 'jar'
+
             }
         }
         stage('Test') {
@@ -40,6 +40,7 @@ pipeline {
             }
             post {
                 always {
+                    archiveArtifacts artifacts: 'target/*.jar'
                     junit 'target/surefire-reports/*.xml' 
                 }
             }
@@ -49,7 +50,6 @@ pipeline {
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
                 unstash 'jar'
-                sh 'ls -la'
                 script {
                     docker.build registry + ":$BUILD_NUMBER"
                     docker.push("${env.BUILD_NUMBER}")  
