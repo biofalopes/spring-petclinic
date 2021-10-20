@@ -38,9 +38,11 @@ pipeline {
             }
         }
         stage('Deploy') { 
-            steps {
-                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
-                docker.build registry + ":$BUILD_NUMBER"
+            agent any {
+                steps {
+                    slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
+                    docker.build registry + ":$BUILD_NUMBER"
+                }
             }
         }
         stage('Prod') {
