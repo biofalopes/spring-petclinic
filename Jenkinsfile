@@ -2,8 +2,9 @@ pipeline {
     agent none
     environment {
         DEPLOY_TO = 'staging'
-        registry = "fabioctba/jenkins"
+        imageName = "fabioctba/spring-petclinic"
         registryCredential = 'dockerhub'
+        dockerImage = ''
     }
     stages {
         stage('Init'){
@@ -45,14 +46,26 @@ pipeline {
                 }
             }
         }
-        stage('Image') { 
+        stage('Build Image') { 
             agent any
             steps {
-                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building Image"
 
                 script {
-                    docker.build registry + ":$BUILD_NUMBER"
-                    docker.push("${env.BUILD_NUMBER}")  
+                    dockerImage = docker.build imageName
+                }
+            }
+        }
+        stage('Publish Image') { 
+            agent any
+            steps {
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building Image"
+
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                    }
                 }
             }
         }
