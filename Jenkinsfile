@@ -24,7 +24,7 @@ pipeline {
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building"
                 sh 'mvn -B -DskipTests clean package'
-                copyArtifacts(filter:'*.jar', projectName: "${env.JOB_NAME}", selector: currentBuild())
+                stash includes: 'target/*.jar', name: 'jar'
             }
         }
         stage('Test') {
@@ -48,6 +48,8 @@ pipeline {
             agent any
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
+                unstash 'jar'
+                sh 'ls -la'
                 script {
                     docker.build registry + ":$BUILD_NUMBER"
                     docker.push("${env.BUILD_NUMBER}")  
