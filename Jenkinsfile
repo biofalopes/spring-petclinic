@@ -10,9 +10,7 @@ pipeline {
             agent any
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Starting"
-                sh 'java --version'
                 sh 'git --version'
-                sh 'mvn --version'
                 echo "Deploying to ${DEPLOY_TO}"
             }
         }
