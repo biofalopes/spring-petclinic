@@ -5,6 +5,6 @@ RUN groupadd --gid 1000 java \
 USER java
 VOLUME /tmp
 WORKDIR /app
-COPY --chown=java:java ./target/petclinic.jar /app/petclinic.jar
+COPY --chown=java:java ./target/*.jar /app/
 # To reduce Tomcat startup time we added a system property pointing to "/dev/urandom" as a source of entropy.
-CMD ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/petclinic.jar"]
+CMD ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/*.jar"]
