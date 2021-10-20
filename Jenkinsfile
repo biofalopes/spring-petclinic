@@ -1,17 +1,13 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.8.3-adoptopenjdk-11'
-            args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
-        }
-        environment {
-            DEPLOY_TO = 'staging'
-            registry = "fabioctba/jenkins"
-            registryCredential = 'dockerhub'
-        }
+    agent none
+    environment {
+        DEPLOY_TO = 'staging'
+        registry = "fabioctba/jenkins"
+        registryCredential = 'dockerhub'
     }
     stages {
         stage('Init'){
+            agent any
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Starting"
                 sh 'java --version'
@@ -21,12 +17,20 @@ pipeline {
             }
         }
         stage('Build') {
+            agent docker {
+                image 'maven:3.8.3-adoptopenjdk-11'
+                args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
+            }
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building"
                 sh 'mvn -B -DskipTests clean package'
             }
         }
-        stage('Test') { 
+        stage('Test') {
+            agent docker {
+                image 'maven:3.8.3-adoptopenjdk-11'
+                args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
+            }
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Running Tests"
                 sh 'mvn test' 
@@ -38,14 +42,14 @@ pipeline {
             }
         }
         stage('Deploy') { 
-            agent any {
-                steps {
-                    slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
-                    docker.build registry + ":$BUILD_NUMBER"
-                }
+            agent any
+            steps {
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
+                docker.build registry + ":$BUILD_NUMBER"
             }
         }
         stage('Prod') {
+            agent any
             when { 
                 allOf { 
                     branch 'master'; 
