@@ -49,7 +49,9 @@ pipeline {
             agent any
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
-                unstash 'jar'
+                sh 'pwd'
+                sh 'ls -la'
+                sh "ls -l /var/jenkins_home//var/jenkins_home/jobs/springboot-petclinic/builds/${env.BUILD_ID}"
                 script {
                     docker.build registry + ":$BUILD_NUMBER"
                     docker.push("${env.BUILD_NUMBER}")  
