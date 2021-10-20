@@ -24,6 +24,7 @@ pipeline {
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building"
                 sh 'mvn -B -DskipTests clean package'
+                copyArtifacts(filter:'*.jar', projectName: ${env.JOB_NAME}, selector: lastSuccessful())
             }
         }
         stage('Test') {
