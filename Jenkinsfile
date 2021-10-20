@@ -4,6 +4,11 @@ pipeline {
             image 'maven:3.8.3-adoptopenjdk-11'
             args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
         }
+        environment {
+            DEPLOY_TO = 'staging'
+            registry = "fabioctba/jenkins"
+            registryCredential = 'dockerhub'
+        }
     }
     stages {
         stage('Init'){
@@ -12,6 +17,7 @@ pipeline {
                 sh 'java --version'
                 sh 'git --version'
                 sh 'mvn --version'
+                echo "Deploying to ${DEPLOY_TO}"
             }
         }
         stage('Build') {
@@ -34,7 +40,19 @@ pipeline {
         stage('Deploy') { 
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Deploying Image"
-                // Create Docker Image
+                docker.build registry + ":$BUILD_NUMBER"
+            }
+        }
+        stage('Prod') {
+            when { 
+                allOf { 
+                    branch 'master'; 
+                    environment name: 'DEPLOY_TO', value: 'production'
+                } 
+            }
+            steps {
+                slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Running Production stage"
+                echo 'Some extra step when on production release'
             }
         }
     }
