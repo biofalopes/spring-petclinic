@@ -17,9 +17,11 @@ pipeline {
             }
         }
         stage('Build') {
-            agent docker {
-                image 'maven:3.8.3-adoptopenjdk-11'
-                args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
+            agent {
+                docker {
+                    image 'maven:3.8.3-adoptopenjdk-11'
+                    args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
+                }
             }
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Building"
@@ -27,9 +29,11 @@ pipeline {
             }
         }
         stage('Test') {
-            agent docker {
-                image 'maven:3.8.3-adoptopenjdk-11'
-                args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
+            agent {
+                docker {
+                    image 'maven:3.8.3-adoptopenjdk-11'
+                    args '-v m2:/root/.m2 -v settings.xml:/root/.m2/settings.xml'
+                }
             }
             steps {
                 slackSend channel: '#jenkins', message: "${env.BUILD_ID} on ${env.JENKINS_URL} - Running Tests"
